@@ -21,13 +21,13 @@ services:
       - "traefik.frontend.entryPoints=http"
       - "traefik.frontend.rule=PathPrefix:/"
 
-  greeter:
+  untar-api:
     build:
       context: .
     image: untar-api
     env_file: docker-compose.env
     environment:
-      SERVICES: greeter
+      SERVICES: untar-api
     links:
       - nats
     depends_on:
@@ -36,6 +36,7 @@ services:
 
   nats:
     image: nats
+    command: docker run -p 4222:4222 -p 8222:8222 -p 6222:6222 --name gnatsd -ti nats:latest
 
   traefik:
     image: traefik
