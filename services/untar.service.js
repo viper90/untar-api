@@ -22,6 +22,14 @@ module.exports = {
 	 */
 	actions: {
 
+            status: {
+                params: {
+                    name: "string"
+                },
+                async handler(ctx) {
+                    return `hello ${ctx.params.name}`
+                }
+        },
 
         tarList: {
             params: {
@@ -29,6 +37,7 @@ module.exports = {
             },
             async handler(ctx) {
 
+        // command arguments including parameter for file
                 let cmdArgs = [
                     '-t',
                     '-f',
@@ -36,37 +45,16 @@ module.exports = {
                 ];
 
 
-                let promise = spawn('tar', cmdArgs);
-                // console.log(promise);
-
-
-                // let promise = spawn('tar', cmdArgs, ctx.params.filePath);
-                let childProcess = promise.childProcess;
-                let splitter = childProcess.stdout.pipe(StreamSplitter("/"));
-
-
-                splitter.on('token', function (data) {
-                    console.log("OUT: " + data);
-                });
-
-                // splitter.on('done', function (data) {
-                //     console.log("DONE: " + data);
-                // });
-
-                console.log('[spawn] childProcess.pid: ', childProcess.pid);
-                // childProcess.stdout.on('data', function (data) {
-                //     console.log('[spawn] stdout: ', data.toString());
-                // });
-                childProcess.stderr.on('data', function (data) {
-                    console.log('[spawn] stderr: ', data.toString());
-                });
-
-                promise.then(function () {
-                    console.log('[spawn] done!');
-                })
+                return spawn('tar', cmdArgs, { capture: [ 'stdout', 'stderr' ]})
+                    .then(function (result) {
+                        console.log('[spawn] stdout: ', result.stdout.toString());
+                        return {result: "ok", data: result.stdout.toString().split("\n")};
+                    })
                     .catch(function (err) {
-                        console.error('[spawn] ERROR: ', err);
+                        console.error('[spawn] stderr: ', err.stderr);
+                        return {result: "Error", data: err.stderr};
                     });
+
             }
         },
 
@@ -83,36 +71,14 @@ module.exports = {
                 ];
 
 
-                let promise = spawn('tar', cmdArgs);
-                // console.log(promise);
-
-
-                // let promise = spawn('tar', cmdArgs, ctx.params.filePath);
-                let childProcess = promise.childProcess;
-                let splitter = childProcess.stdout.pipe(StreamSplitter("/"));
-
-
-                splitter.on('token', function (data) {
-                    console.log("OUT: " + data);
-                });
-
-                // splitter.on('done', function (data) {
-                //     console.log("DONE: " + data);
-                // });
-
-                console.log('[spawn] childProcess.pid: ', childProcess.pid);
-                // childProcess.stdout.on('data', function (data) {
-                //     console.log('[spawn] stdout: ', data.toString());
-                // });
-                childProcess.stderr.on('data', function (data) {
-                    console.log('[spawn] stderr: ', data.toString());
-                });
-
-                promise.then(function () {
-                    console.log('[spawn] done!');
-                })
+                return spawn('tar', cmdArgs, { capture: [ 'stdout', 'stderr' ]})
+                    .then(function (result) {
+                        console.log('[spawn] stdout: ', result.stdout.toString());
+                        return {result: "ok"};
+                    })
                     .catch(function (err) {
-                        console.error('[spawn] ERROR: ', err);
+                        console.error('[spawn] stderr: ', err.stderr);
+                        return {result: "Error", data: err.stderr};
                     });
             }
         },
@@ -131,40 +97,44 @@ module.exports = {
                 ctx.params.fileToFind
             ];
 
-
-            let promise = spawn('tar', cmdArgs);
-            // console.log(promise);
-
-
-            // let promise = spawn('tar', cmdArgs, ctx.params.filePath);
-            let childProcess = promise.childProcess;
-            let splitter = childProcess.stdout.pipe(StreamSplitter("/"));
-
-
-            splitter.on('token', function (data) {
-                console.log("OUT: " + data);
-            });
-
-            // splitter.on('done', function (data) {
-            //     console.log("DONE: " + data);
-            // });
-
-            console.log('[spawn] childProcess.pid: ', childProcess.pid);
-            // childProcess.stdout.on('data', function (data) {
-            //     console.log('[spawn] stdout: ', data.toString());
-            // });
-            childProcess.stderr.on('data', function (data) {
-                console.log('[spawn] stderr: ', data.toString());
-            });
-
-            promise.then(function () {
-                console.log('[spawn] done!');
-            })
+            return spawn('tar', cmdArgs, { capture: [ 'stdout', 'stderr' ]})
+                .then(function (result) {
+                    console.log('[spawn] stdout: ', result.stdout.toString());
+                    return {result: "ok", data: result.stdout.toString().split("\n")};
+                })
                 .catch(function (err) {
-                    console.error('[spawn] ERROR: ', err);
+                    console.error('[spawn] stderr: ', err.stderr);
+                    return {result: "Error", data: err.stderr};
                 });
         }
-    }
+    },
+
+        tarExtractFile: {
+            params: {
+                tarPath: "string",
+                fileToFind: "string"
+            },
+            async handler(ctx) {
+
+                let cmdArgs = [
+                    '-x',
+                    '-f',
+                    ctx.params.tarPath,
+                    ctx.params.fileToFind
+                ];
+
+
+                return spawn('tar', cmdArgs, { capture: [ 'stdout', 'stderr' ]})
+                    .then(function (result) {
+                        console.log('[spawn] stdout: ', result.stdout.toString());
+                        return {result: `File ${ctx.params.fileToFind} extracted`};
+                    })
+                    .catch(function (err) {
+                        console.error('[spawn] stderr: ', err.stderr);
+                        return {result: "Error", data: err.stderr};
+                    });
+            }
+        }
 },
 
 	/**

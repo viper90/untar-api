@@ -5,45 +5,19 @@ services:
   api:
     build:
       context: .
-    image: untar-api
+    image: untar-demo
+    ports:
+      - 3000:3000
+    volumes:
+      - ./services/:/app/services/
     env_file: docker-compose.env
     environment:
-      SERVICES: api
+      SERVICEDIR: services
       PORT: 3000
     links:
       - nats
     depends_on:
       - nats
-    labels:
-      - "traefik.enable=true"   
-      - "traefik.backend=api"
-      - "traefik.port=3000"
-      - "traefik.frontend.entryPoints=http"
-      - "traefik.frontend.rule=PathPrefix:/"
-
-  untar-api:
-    build:
-      context: .
-    image: untar-api
-    env_file: docker-compose.env
-    environment:
-      SERVICES: untar-api
-    links:
-      - nats
-    depends_on:
-      - nats
-
 
   nats:
     image: nats
-    command: docker run -p 4222:4222 -p 8222:8222 -p 6222:6222 --name gnatsd -ti nats:latest
-
-  traefik:
-    image: traefik
-    command: --web --docker --docker.domain=docker.localhost --logLevel=INFO --docker.exposedbydefault=false
-    ports:
-      - "3000:80"
-      - "3001:8080"
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - /dev/null:/traefik.toml
