@@ -3,7 +3,7 @@ version: "3.0"
 services:
 
   api:
-    build:
+    build: .
       context: .
     image: untar-demo
     ports:
